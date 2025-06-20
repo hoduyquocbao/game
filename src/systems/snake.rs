@@ -6,6 +6,7 @@ use crate::world::World;
 use crate::components::GRID_SIZE;
 use std::collections::HashMap;
 use crate::engine::Entity;
+use std::collections::HashSet;
 
 /// Hệ thống di chuyển rắn (hai pha: cập nhật vị trí head, thu thập vị trí, cập nhật body)
 pub struct Movement;
@@ -59,8 +60,43 @@ impl System for Growth {
     fn access(&self) -> SystemAccess {
         SystemAccess {}
     }
-    fn run(&mut self, _world: &mut World) {
-        // TODO: Lắng nghe event Eaten, tìm đuôi, spawn entity mới với Body, Position, Follow
+    fn run(&mut self, world: &mut World) {
+        // Lắng nghe event Eaten
+        let eaten_targets: Vec<Entity> = {
+            let mut result = Vec::new();
+            {
+                if let Some(events) = world.get::<crate::engine::Events<Eaten>>() {
+                    for e in events.read() {
+                        result.push(e.0);
+                    }
+                }
+            }
+            result
+        };
+        if eaten_targets.is_empty() {
+            return;
+        }
+        // Tìm đuôi: Body không bị Follow
+        let mut followed: HashSet<Entity> = HashSet::new();
+        for (_entity, follow) in world.query_component::<(Follow,)>() {
+            followed.insert(follow.0.0);
+        }
+        let mut tail_entity = None;
+        let mut tail_pos = None;
+        for (entity, (_body, pos)) in world.query_component::<(Body, Position)>() {
+            if !followed.contains(&entity) {
+                tail_entity = Some(entity);
+                tail_pos = Some(*pos);
+                break;
+            }
+        }
+        if let (Some(tail_entity), Some(tail_pos)) = (tail_entity, tail_pos) {
+            let mut commands = world.get_mut::<crate::world::Commands>().unwrap();
+            commands.spawn(world)
+                .with(Body)
+                .with(tail_pos)
+                .with(Follow(tail_entity));
+        }
     }
 }
 
@@ -70,7 +106,26 @@ impl System for Collision {
     fn access(&self) -> SystemAccess {
         SystemAccess {}
     }
-    fn run(&mut self, _world: &mut World) {
-        // TODO: Lấy Position của Head, so với tất cả Body để phát hiện va chạm
+    fn run(&mut self, world: &mut World) {
+        // Lấy Position của Head
+        let mut head_pos: Option<Position> = None;
+        for (_entity, (_head, pos)) in world.query_component::<(Head, Position)>() {
+            head_pos = Some(*pos);
+            break;
+        }
+        if head_pos.is_none() {
+            return;
+        }
+        let head_pos = head_pos.unwrap();
+        // So với tất cả Body
+        for (_entity, (_body, pos)) in world.query_component::<(Body, Position)>() {
+            if *pos == head_pos {
+                // Gửi event Dead
+                if let Some(mut events) = world.get_mut::<crate::engine::Events<Dead>>() {
+                    events.send(Dead);
+                }
+                break;
+            }
+        }
     }
 }
