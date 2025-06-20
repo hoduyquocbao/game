@@ -1,0 +1,42 @@
+[package]
+name = "game"
+version = "0.1.0"
+authors = ["Hồ Duy Quốc Bảo <hdqb@rim.vn>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dioxus = { version = "0.6.0", features = [] }
+# Thêm các dependencies cần thiết cho engine
+wgpu = "0.19"
+glam = "0.25"
+bytemuck = { version = "1.14", features = ["derive"] }
+rayon = "1.8"
+rand = "0.8"
+# Thêm các dependencies cần thiết cho Dioxus
+dioxus-desktop = "0.6.0"
+env_logger = "0.10"
+uuid = { version = "1.6", features = ["v4"] }
+
+
+[features]
+default = ["desktop"]
+# The feature that are only required for the web = ["dioxus/web"] build target should be optional and only enabled in the web = ["dioxus/web"] feature
+web = ["dioxus/web"]
+# The feature that are only required for the desktop = ["dioxus/desktop"] build target should be optional and only enabled in the desktop = ["dioxus/desktop"] feature
+desktop = ["dioxus/desktop"]
+# The feature that are only required for the mobile = ["dioxus/mobile"] build target should be optional and only enabled in the mobile = ["dioxus/mobile"] feature
+mobile = ["dioxus/mobile"]
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"

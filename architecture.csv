@@ -1,0 +1,23 @@
+Path,Type,Identifier (Single Word),Tên Gốc (Từ Ghép),Trách nhiệm,Phụ thuộc,Ghi chú
+src/app.rs,Struct,App,ApplicationBuilder,Xây dựng và cấu hình ứng dụng thông qua builder pattern, quản lý vòng lặp chính.,plugin::Plugin, schedule::Schedules, World, dioxus,Đóng vai trò là điểm khởi đầu, tập hợp các thành phần của engine.
+src/plugin.rs,Trait,Plugin,GameLogicPlugin,Định nghĩa giao ước cho các module logic game có thể tái sử dụng để cắm vào App,app::App,Kiến trúc cốt lõi cho tính module hóa.
+src/engine.rs,Module,engine,CoreEngineTraits,Định nghĩa các trait cơ bản nhất của engine: Component, Resource, Event, System.,-,Nền tảng của toàn bộ hệ thống type.
+src/engine.rs,Trait,System,LogicSystem,Định nghĩa giao ước cho một đơn vị logic, yêu cầu khai báo truy cập dữ liệu.,world::World, SystemAccess,Nâng cấp để hỗ trợ lập lịch song song.
+src/engine.rs,Struct,SystemAccess,DataAccessPermissions,Khai báo quyền truy cập đọc/ghi vào component/resource của một hệ thống.,std::any::TypeId,Dữ liệu cốt lõi cho bộ thực thi song song.
+src/schedule/mod.rs,Struct,Schedule,ExecutionSchedule,Chứa một chuỗi các Stage để thực thi tuần tự.,schedule::Stage,Tổ chức các giai đoạn thực thi của một frame.
+src/schedule/mod.rs,Struct,Stage,ExecutionStage,Chứa một tập hợp các hệ thống sẽ được thực thi trong một giai đoạn.,engine::System,Các hệ thống trong một Stage có thể chạy song song.
+src/schedule/executor.rs,Module,executor,ParallelExecutor,Chứa logic thực thi các hệ thống trong một Schedule.,rayon, schedule::Stage, World,Trái tim của hiệu suất CPU.
+src/schedule/executor.rs,Function,parallel,execute_parallel,Phân tích đồ thị phụ thuộc giữa các System và thực thi chúng song song bằng rayon.,SystemAccess,Sử dụng unsafe có chủ đích và được kiểm soát chặt chẽ.
+src/renderer/mod.rs,Module,renderer,RendererAbstraction,Trừu tượng hóa hệ thống render, cho phép có nhiều backend khác nhau.,wgpu, dioxus,Tách biệt hoàn toàn logic game khỏi logic render.
+src/renderer/mod.rs,Trait,Renderer,GraphicsRenderer,Định nghĩa giao ước chung cho tất cả các backend render.,world::World,Đảm bảo tính nhất quán của API render.
+src/renderer/gpu.rs,Module,gpu,WgpuRendererBackend,Cung cấp backend render hiệu suất cao sử dụng WGPU và vẽ theo lô.,wgpu, bytemuck, glam,Backend duy nhất được hỗ trợ trong phiên bản này để đảm bảo hiệu suất.
+src/snake_plugin.rs,Struct,Snake,SnakeGamePlugin,Đóng gói và khởi tạo tất cả resource, system, và state cần thiết cho game Rắn Săn Mồi.,app::App, engine::Plugin, systems::*,Ví dụ điển hình về cách sử dụng framework để xây dựng một ứng dụng module hóa.
+src/components.rs,Module,components,GameComponents,Định nghĩa tất cả các cấu trúc dữ liệu thuần túy (PODs) và enum của game.,std::collections::VecDeque,Đóng vai trò là "schema" dữ liệu cho toàn bộ game.
+src/components.rs,Struct,Snake,SnakeBodyData,Lưu trữ trạng thái của con rắn, bao gồm một VecDeque các Position của các đốt thân.,components::Position,Sử dụng VecDeque để tối ưu O(1) cho việc thêm/xóa ở hai đầu.
+src/systems/mod.rs,Module,systems,GameLogicSystems,Tập hợp và cung cấp tất cả các hệ thống logic của game.,engine::System, world::World,Đóng vai trò là một facade cho các module system con.
+src/systems/input.rs,Function,input,ProcessInputSystem,Xử lý các sự kiện bàn phím thô từ Input resource và cập nhật Direction resource.,world::World, input::Input, components::Direction,Chạy đầu tiên trong mỗi tick để đảm bảo input được xử lý kịp thời.
+src/systems/snake.rs,Function,movement,SnakeMovementSystem,Cập nhật vị trí của đầu rắn dựa trên Direction và di chuyển các đốt thân theo sau.,world::World, components::Snake, components::Direction,Logic di chuyển theo chuỗi cổ điển của game Rắn.
+src/systems/snake.rs,Function,collision,CollisionDetectionSystem,Kiểm tra va chạm của đầu rắn với tường và với chính nó. Gửi sự kiện Dead nếu có va chạm.,world::World, components::Snake, event::Events<Dead>,Hệ thống quyết định điều kiện thua của game.
+src/systems/snake.rs,Function,growth,SnakeGrowthSystem,Lắng nghe sự kiện Eaten và thêm một đốt mới vào đuôi rắn.,world::World, event::Events<Eaten>, components::Snake,Logic cốt lõi cho việc "lớn lên" của rắn.
+src/systems/food.rs,Function,spawner,FoodSpawningSystem,Duy trì số lượng mồi trên màn chơi, tạo ra mồi mới ở vị trí ngẫu nhiên.,world::World, components::Food, rand,Chịu trách nhiệm cho bài toán stress test 1000 mồi.
+src/systems/food.rs,Function,lifetime,LifetimeSystem,Kiểm tra tất cả các thực thể có Lifetime component và gửi sự kiện Despawn khi hết hạn.,world::World, components::Lifetime,Đảm bảo các thực thể tạm thời được dọn dẹp khỏi game.

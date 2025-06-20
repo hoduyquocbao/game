@@ -1,0 +1,11 @@
+Path,Nhiệm vụ,Mô tả,Độ ưu tiên,Loại
+src/schedule/executor.rs,Pre-compute schedule graph,Thay vì phân tích đồ thị phụ thuộc mỗi frame, chỉ cần tính toán một lần khi schedule được xây dựng. Điều này giảm overhead mỗi tick.,Medium,Performance
+src/renderer/gpu.rs,Implement texture batching,Hiện tại, mỗi thực thể là một hình vuông màu. Cần một hệ thống để nhóm các thực thể dùng chung texture và vẽ chúng trong cùng một lô.,High,Feature
+src/renderer/gpu.rs,Handle window resize,Logic resize trong renderer cần được kết nối với sự kiện resize của cửa sổ Dioxus để cập nhật surface configuration.,High,Bug
+src/world.rs,Implement Archetype Move,Logic add/despawn hiện tại cần hoàn thiện đầy đủ thao tác di chuyển dữ liệu giữa các archetype một cách hiệu quả.,High,Refactor
+src/input.rs,Support Gamepad/Mouse,Mở rộng Input resource để xử lý các loại thiết bị đầu vào khác ngoài bàn phím.,Low,Feature
+toàn bộ,Tối ưu hóa bộ nhớ,Rà soát và sử dụng các cấu trúc dữ liệu hiệu quả hơn về bộ nhớ ở những nơi có thể, ví dụ: smallvec cho các collection nhỏ.,Low,Performance
+src/systems/collision.rs,Implement Spatial Hashing,Thay thế việc lặp tuyến tính để kiểm tra va chạm bằng một HashMap<Position, Entity> được cập nhật mỗi frame. Điều này sẽ giảm độ phức tạp từ O(N) xuống O(1).,High,Performance
+src/systems/snake.rs,Refactor Snake to Entities,Thay vì Snake resource, mỗi đốt thân là một Entity với component SnakeBody và Follow(target: Entity). Điều này linh hoạt hơn và đúng với triết lý ECS hơn.,Medium,Refactor
+src/snake_plugin.rs,Add Paused State,Implement trạng thái Paused. Cần tạo một Schedule riêng cho trạng thái này (ví dụ: chỉ chạy hệ thống render và input để un-pause).,High,Feature
+src/systems/food.rs,Optimize Food Spawning,Thuật toán tạo mồi hiện tại có thể lặp vô hạn nếu toàn bộ bản đồ đã bị rắn chiếm. Cần một thuật toán tìm vị trí trống hiệu quả hơn.,Medium,Bug
