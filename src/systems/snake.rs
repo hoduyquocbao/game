@@ -107,24 +107,26 @@ impl System for Collision {
         SystemAccess {}
     }
     fn run(&mut self, world: &mut World) {
-        // Lấy Position của Head
-        let mut head_pos: Option<Position> = None;
-        for (_entity, (_head, pos)) in world.query_component::<(Head, Position)>() {
-            head_pos = Some(*pos);
-            break;
-        }
+        // Lấy Position của Head (chỉ lấy entity đầu tiên)
+        let head_pos = world
+            .query_component::<(Head, Position)>()
+            .into_iter()
+            .next()
+            .map(|(_, (_head, pos))| *pos);
         if head_pos.is_none() {
             return;
         }
         let head_pos = head_pos.unwrap();
-        // So với tất cả Body
-        for (_entity, (_body, pos)) in world.query_component::<(Body, Position)>() {
-            if *pos == head_pos {
-                // Gửi event Dead
-                if let Some(mut events) = world.get_mut::<crate::engine::Events<Dead>>() {
-                    events.send(Dead);
-                }
-                break;
+        // Thu thập toàn bộ Position của Body
+        let body_positions: std::collections::HashSet<Position> = world
+            .query_component::<(Body, Position)>()
+            .into_iter()
+            .map(|(_, (_body, pos))| *pos)
+            .collect();
+        // Kiểm tra va chạm
+        if body_positions.contains(&head_pos) {
+            if let Some(mut events) = world.get_mut::<crate::engine::Events<Dead>>() {
+                events.send(Dead);
             }
         }
     }

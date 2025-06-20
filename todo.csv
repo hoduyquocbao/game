@@ -13,3 +13,4 @@ src/systems/snake.rs,Implement Collision,Kiểm tra va chạm Head với Body, p
 src/snake_plugin.rs,Add Paused State,Implement trạng thái Paused. Cần tạo một Schedule riêng cho trạng thái này (ví dụ: chỉ chạy hệ thống render và input để un-pause).,High,Feature,
 src/systems/food.rs,Optimize Food Spawning,Thuật toán tạo mồi hiện tại có thể lặp vô hạn nếu toàn bộ bản đồ đã bị rắn chiếm. Cần một thuật toán tìm vị trí trống hiệu quả hơn.,Medium,Bug,
 src/world/mod.rs,Refactor Commands API,Commands::spawn không nhận World, EntityBuilder gom component, apply_commands thực thi lệnh spawn, update Growth,High,Refactor,Done,Đảm bảo an toàn bộ nhớ, sạch linter, chuẩn hóa ECS
+src/systems/mod.rs,Implement Transition,Chuyển trạng thái Playing -> GameOver khi nhận Dead,High,Feature,Done,Đã implement event-based, chuẩn hóa ECS, sạch linter

@@ -22,6 +22,7 @@ impl Plugin for SnakePlugin {
         playing_schedule.add(InputSystem);
         playing_schedule.add(Movement);
         playing_schedule.add(Collision);
+        playing_schedule.add(crate::systems::Transition);
         playing_schedule.add(Growth);
         playing_schedule.add(FoodSpawnerSystem);
         playing_schedule.add(LifetimeSystem);
