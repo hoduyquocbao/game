@@ -70,6 +70,8 @@ pub struct Eaten(pub Entity);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Dead;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Reset;
 
 // --- Các Resource Quản lý Trạng thái ---
 pub struct Snake {

@@ -8,6 +8,7 @@ use crate::{
     schedule::{Schedule, Schedules},
     world::World,
     engine::Resource,
+    view::{GameView, GameOverView},
 };
 use dioxus::prelude::*;
 
@@ -73,6 +74,11 @@ impl App {
 /// Component gốc của Dioxus, quản lý vòng lặp game.
 #[allow(non_snake_case)]
 fn Root() -> Element {
-    // TODO: Chuyển state vào context hoặc static nếu cần
-    rsx! { div { "Game Root" } }
+    // TODO: Lấy state và score từ world thực tế (hiện tại chỉ mock)
+    let state = crate::components::GameState::GameOver; // TODO: wiring thực tế
+    let score = 42u32; // TODO: wiring thực tế
+    match state {
+        crate::components::GameState::GameOver => GameOverView(crate::view::GameOverViewProps { score }),
+        _ => GameView(),
+    }
 }

@@ -18,6 +18,7 @@ impl Plugin for SnakePlugin {
         });
         app.resource(engine::Events::<Eaten>::default());
         app.resource(engine::Events::<Dead>::default());
+        app.resource(engine::Events::<Reset>::default());
         let playing_schedule = app.schedule(GameState::Playing);
         playing_schedule.add(InputSystem);
         playing_schedule.add(Movement);
@@ -26,6 +27,11 @@ impl Plugin for SnakePlugin {
         playing_schedule.add(Growth);
         playing_schedule.add(FoodSpawnerSystem);
         playing_schedule.add(LifetimeSystem);
+        playing_schedule.add(crate::systems::ResetSystem);
+        // Schedule cho GameOver: chỉ lắng nghe phím R để reset
+        let gameover_schedule = app.schedule(GameState::GameOver);
+        gameover_schedule.add(crate::systems::InputGameOver);
+        gameover_schedule.add(crate::systems::ResetSystem);
         // TODO: Thiết lập hệ thống cho trạng thái GameOver
     }
 }

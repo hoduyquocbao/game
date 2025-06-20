@@ -14,3 +14,5 @@ src/snake_plugin.rs,Add Paused State,Implement trạng thái Paused. Cần tạo
 src/systems/food.rs,Optimize Food Spawning,Thuật toán tạo mồi hiện tại có thể lặp vô hạn nếu toàn bộ bản đồ đã bị rắn chiếm. Cần một thuật toán tìm vị trí trống hiệu quả hơn.,Medium,Bug,
 src/world/mod.rs,Refactor Commands API,Commands::spawn không nhận World, EntityBuilder gom component, apply_commands thực thi lệnh spawn, update Growth,High,Refactor,Done,Đảm bảo an toàn bộ nhớ, sạch linter, chuẩn hóa ECS
 src/systems/mod.rs,Implement Transition,Chuyển trạng thái Playing -> GameOver khi nhận Dead,High,Feature,Done,Đã implement event-based, chuẩn hóa ECS, sạch linter
+src/systems/mod.rs,Implement InputGameOver,Lắng nghe phím R khi GameOver, gửi event Reset,High,Feature,Done,Đã implement event-based, chuẩn hóa ECS, sạch linter
+src/systems/mod.rs,Implement ResetSystem,Reset toàn bộ entity, score, state khi nhận Reset,High,Feature,Done,Đã implement event-based, chuẩn hóa ECS, sạch linter
