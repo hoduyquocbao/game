@@ -177,4 +177,38 @@ impl World {
             }
         })
     }
+
+    /// Trả về Vec<(Entity, &T)> cho tất cả entity có component T
+    pub fn query_component<T: Component>(&self) -> Vec<(Entity, &T)> {
+        let mut result = Vec::new();
+        for archetype in &self.archetypes {
+            let type_id = std::any::TypeId::of::<T>();
+            if let Some(storage) = archetype.get_component_storage(type_id) {
+                let slice = storage.as_slice::<T>();
+                for (i, entity) in archetype.entities().iter().enumerate() {
+                    result.push((*entity, &slice[i]));
+                }
+            }
+        }
+        result
+    }
+
+    /// Trả về Vec<(Entity, usize)> cho tất cả entity có component T (dùng index để mutate)
+    pub fn query_component_mut<T: Component>(&mut self) -> Vec<(Entity, usize)> {
+        let mut result = Vec::new();
+        for archetype in &mut self.archetypes {
+            let type_id = std::any::TypeId::of::<T>();
+            if let Some(storage) = archetype.get_component_storage_mut(type_id) {
+                let len = storage.as_mut_slice::<T>().len();
+                for (i, entity) in archetype.entities().iter().enumerate().take(len) {
+                    result.push((*entity, i));
+                }
+            }
+        }
+        result
+    }
+
+    pub fn archetypes_mut(&mut self) -> &mut Vec<crate::world::archetype::Archetype> {
+        &mut self.archetypes
+    }
 }

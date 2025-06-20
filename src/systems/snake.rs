@@ -14,37 +14,39 @@ impl System for Movement {
         SystemAccess {}
     }
     fn run(&mut self, world: &mut World) {
-        // PHA 1: Thu thập vị trí cũ của tất cả entity có Position
-        let mut old_pos: HashMap<Entity, Position> = HashMap::new();
-        for entity in world.query::<Position>() {
-            // TODO: Khi World hỗ trợ query component thực sự, lấy đúng Position từng entity
-            if let Some(pos) = world.get::<Position>() {
-                old_pos.insert(entity, *pos);
+        // --- PHA 1: TÍNH TOÁN VỊ TRÍ MỚI CHO HEAD ---
+        let mut next_positions: HashMap<Entity, Position> = HashMap::new();
+        for (entity, (head, pos)) in world.query_component::<(Head, Position)>() {
+            let mut new_pos = *pos;
+            match head.direction {
+                Direction::Up => new_pos.y = (new_pos.y - 1).rem_euclid(GRID_SIZE),
+                Direction::Down => new_pos.y = (new_pos.y + 1).rem_euclid(GRID_SIZE),
+                Direction::Left => new_pos.x = (new_pos.x - 1).rem_euclid(GRID_SIZE),
+                Direction::Right => new_pos.x = (new_pos.x + 1).rem_euclid(GRID_SIZE),
+            }
+            next_positions.insert(entity, new_pos);
+        }
+        // --- PHA 2: TÍNH TOÁN VỊ TRÍ MỚI CHO BODY ---
+        for (entity, (follow, _body)) in world.query_component::<(Follow, Body)>() {
+            // Lấy vị trí hiện tại của entity mà đốt này follow
+            if let Some((_, target_pos)) = world.query_component::<(Position,)>().into_iter().find(|(e, _)| *e == follow.0) {
+                next_positions.insert(entity, target_pos.0);
             }
         }
-        // PHA 2: Di chuyển Head
-        for entity in world.query::<Head>() {
-            // Lấy direction hiện tại
-            if let (Some(head), Some(mut pos)) = (world.get_mut::<Head>(), world.get_mut::<Position>()) {
-                let dir = head.direction;
-                let mut new_pos = *pos;
-                match dir {
-                    Direction::Up => new_pos.y = (new_pos.y - 1).rem_euclid(GRID_SIZE),
-                    Direction::Down => new_pos.y = (new_pos.y + 1).rem_euclid(GRID_SIZE),
-                    Direction::Left => new_pos.x = (new_pos.x - 1).rem_euclid(GRID_SIZE),
-                    Direction::Right => new_pos.x = (new_pos.x + 1).rem_euclid(GRID_SIZE),
-                }
-                *pos = new_pos;
-                // Cập nhật lại trong old_pos để các Follow có thể lấy vị trí head cũ
-                old_pos.insert(entity, *pos);
-            }
-        }
-        // PHA 3: Cập nhật các entity có Follow
-        for _entity in world.query::<Follow>() {
-            if let (Some(follow), Some(mut pos)) = (world.get::<Follow>(), world.get_mut::<Position>()) {
-                let target = follow.0;
-                if let Some(target_pos) = old_pos.get(&target) {
-                    *pos = *target_pos;
+        // --- PHA 3: ÁP DỤNG TOÀN BỘ THAY ĐỔI ---
+        for (entity, new_pos) in next_positions {
+            for (e, idx) in world.query_component_mut::<Position>() {
+                if e == entity {
+                    // Tìm archetype chứa entity này
+                    if let Some(archetype) = world.archetypes_mut().iter_mut().find(|a| a.entities().contains(&entity)) {
+                        let type_id = std::any::TypeId::of::<Position>();
+                        if let Some(storage) = archetype.get_component_storage_mut(type_id) {
+                            let slice = storage.as_mut_slice::<Position>();
+                            if idx < slice.len() {
+                                slice[idx] = new_pos;
+                            }
+                        }
+                    }
                 }
             }
         }

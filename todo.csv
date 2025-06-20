@@ -7,7 +7,7 @@ src/input.rs,Support Gamepad/Mouse,Mở rộng Input resource để xử lý cá
 toàn bộ,Tối ưu hóa bộ nhớ,Rà soát và sử dụng các cấu trúc dữ liệu hiệu quả hơn về bộ nhớ ở những nơi có thể, ví dụ: smallvec cho các collection nhỏ.,Low,Performance,
 src/systems/collision.rs,Implement Spatial Hashing,Thay thế việc lặp tuyến tính để kiểm tra va chạm bằng một HashMap<Position, Entity> được cập nhật mỗi frame. Điều này sẽ giảm độ phức tạp từ O(N) xuống O(1).,High,Performance,
 src/systems/snake.rs,Refactor Snake to Entities,Thay vì Snake resource, mỗi đốt thân là một Entity với component Body và Follow(target: Entity). Điều này linh hoạt hơn và đúng với triết lý ECS hơn.,Medium,Refactor,Done
-src/systems/snake.rs,Implement Movement (two-phase),Cập nhật vị trí Head, propagate theo Follow cho toàn bộ rắn,High,Feature,Done
+src/systems/snake.rs,Implement Movement (two-phase),Cập nhật vị trí Head, propagate theo Follow cho toàn bộ rắn,High,Feature,Done,Refactor state buffering, mutate qua index+archetype, sạch linter
 src/systems/snake.rs,Implement Growth,Thêm đốt mới khi ăn mồi, cập nhật Follow,High,Feature,Open
 src/systems/snake.rs,Implement Collision,Kiểm tra va chạm Head với Body, phát hiện thua,High,Feature,Open
 src/snake_plugin.rs,Add Paused State,Implement trạng thái Paused. Cần tạo một Schedule riêng cho trạng thái này (ví dụ: chỉ chạy hệ thống render và input để un-pause).,High,Feature,

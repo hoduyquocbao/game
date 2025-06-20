@@ -34,6 +34,22 @@ impl ComponentVec {
     pub fn get_mut(&mut self, index: usize) -> Option<&mut (dyn Any + Send + Sync)> {
         self.0.get_mut(index).map(|b| b.as_mut())
     }
+
+    /// Trả về slice bất biến tới dữ liệu kiểu T
+    pub fn as_slice<T: 'static>(&self) -> &[T] {
+        // Chuyển Vec<Box<dyn Any>> thành Vec<T> bằng downcast
+        unsafe {
+            &*(self.0.iter().map(|b| b.downcast_ref::<T>().unwrap()).collect::<Vec<_>>().as_slice() as *const [_] as *const [T])
+        }
+    }
+
+    /// Trả về slice có thể thay đổi tới dữ liệu kiểu T
+    pub fn as_mut_slice<T: 'static>(&mut self) -> &mut [T] {
+        // Chuyển Vec<Box<dyn Any>> thành Vec<T> bằng downcast
+        unsafe {
+            &mut *(self.0.iter_mut().map(|b| b.downcast_mut::<T>().unwrap()).collect::<Vec<_>>().as_mut_slice() as *mut [_] as *mut [T])
+        }
+    }
 }
 
 /// Một Archetype đại diện cho một tập hợp các thực thể có cùng một bộ component.
