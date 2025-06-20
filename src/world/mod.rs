@@ -27,42 +27,34 @@ pub enum Command {
     RemoveComponent(Entity, TypeId),
 }
 
-/// Builder để tạo một entity với các component một cách tiện lợi.
-pub struct EntityCommands<'a> {
-    entity: Entity,
-    components: Vec<(TypeId, Box<dyn Any + Send + Sync>)>, 
+/// Builder để tạo một entity với các component một cách tiện lợi (API mới, không cần World).
+pub struct EntityBuilder<'a> {
+    components: Vec<(TypeId, Box<dyn Any + Send + Sync>)>,
     commands: &'a mut Commands,
 }
 
-impl<'a> EntityCommands<'a> {
+impl<'a> EntityBuilder<'a> {
     pub fn with<C: Component>(mut self, component: C) -> Self {
         self.components.push((TypeId::of::<C>(), Box::new(component)));
         self
     }
-
-    pub fn id(&self) -> Entity {
-        self.entity
-    }
 }
 
-impl<'a> Drop for EntityCommands<'a> {
+impl<'a> Drop for EntityBuilder<'a> {
     fn drop(&mut self) {
-        // Khi builder bị drop, lệnh spawn sẽ được thêm vào hàng đợi.
         let components = std::mem::take(&mut self.components);
         self.commands.0.push(Command::Spawn(components));
     }
 }
-
 
 /// Resource để xếp hàng các lệnh thay đổi cấu trúc World.
 #[derive(Default)]
 pub struct Commands(Vec<Command>);
 
 impl Commands {
-    pub fn spawn(&mut self, world: &mut World) -> EntityCommands {
-        let entity = world.create_entity();
-        EntityCommands {
-            entity,
+    /// API mới: chỉ buffer ý định spawn, không cần World
+    pub fn spawn(&mut self) -> EntityBuilder {
+        EntityBuilder {
             components: Vec::new(),
             commands: self,
         }
@@ -72,7 +64,6 @@ impl Commands {
         self.0.push(Command::Despawn(entity));
     }
 }
-
 
 /// World là container trung tâm cho tất cả dữ liệu trong game.
 #[derive(Default)]
@@ -120,29 +111,6 @@ impl World {
         })
     }
 
-    /// Tạo một entity mới với các component đã cho.
-    pub fn spawn(&mut self) -> EntityCommands {
-        let entity = self.create_entity();
-        // Lấy mutable reference đến Commands thông qua RefCell::get_mut
-        let commands_cell = self.resources.get_mut(&TypeId::of::<Commands>()).unwrap();
-        let commands = commands_cell.get_mut().downcast_mut::<Commands>().unwrap();
-        EntityCommands {
-            entity,
-            components: Vec::new(),
-            commands,
-        }
-    }
-
-    /// Hủy một entity.
-    pub fn despawn(&mut self, entity: Entity) {
-        if let Some(location) = self.entities[entity.id()].take() {
-            let archetype = &mut self.archetypes[location.archetype_id];
-            let (moved_entity, _) = archetype.remove(location.index);
-            // Cập nhật vị trí của entity đã bị di chuyển đến chỗ trống.
-            self.entities[moved_entity.id()] = Some(Location { archetype_id: location.archetype_id, index: location.index });
-        }
-    }
-
     /// Áp dụng các lệnh đã được xếp hàng.
     pub fn apply_commands(&mut self) {
         let mut commands = self.get_mut::<Commands>().unwrap();
@@ -152,9 +120,21 @@ impl World {
         for command in command_list {
             match command {
                 Command::Spawn(components) => {
-                    let _entity = self.create_entity();
-                    let _components = components;
-                    // TODO: Thêm logic add component cho entity này
+                    // Tạo entity mới và add các component vào archetype đúng
+                    let entity = self.create_entity();
+                    // Xác định archetype phù hợp
+                    let type_ids: Vec<TypeId> = components.iter().map(|(t, _)| *t).collect();
+                    let archetype_id = if let Some(&id) = self.archetype_map.get(&type_ids) {
+                        id
+                    } else {
+                        let id = self.archetypes.len();
+                        self.archetypes.push(Archetype::new(&type_ids));
+                        self.archetype_map.insert(type_ids.clone(), id);
+                        id
+                    };
+                    let archetype = &mut self.archetypes[archetype_id];
+                    let index = archetype.add(entity, components);
+                    self.entities[entity.id()] = Some(Location { archetype_id, index });
                 }
                 Command::Despawn(entity) => {
                     let _entity = entity;

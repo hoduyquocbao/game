@@ -92,7 +92,7 @@ impl System for Growth {
         }
         if let (Some(tail_entity), Some(tail_pos)) = (tail_entity, tail_pos) {
             let mut commands = world.get_mut::<crate::world::Commands>().unwrap();
-            commands.spawn(world)
+            commands.spawn()
                 .with(Body)
                 .with(tail_pos)
                 .with(Follow(tail_entity));
