@@ -1,6 +1,6 @@
 //! Xử lý các sự kiện bàn phím thô.
 
-use crate::components::{Direction, SnakeHead};
+use crate::components::{Direction, Head};
 use crate::engine::{System, SystemAccess};
 use crate::input::Input;
 use crate::world::World;
@@ -26,8 +26,8 @@ impl System for InputSystem {
         };
         if let Some(new_dir) = new_dir {
             // TODO: Thay thế bằng query component đúng nếu World chưa có API query
-            // Giả sử chỉ có 1 SnakeHead, lấy mutable reference đầu tiên
-            if let Some(mut head) = world.get_mut::<SnakeHead>() {
+            // Giả sử chỉ có 1 Head, lấy mutable reference đầu tiên
+            if let Some(mut head) = world.get_mut::<Head>() {
                 if new_dir != head.direction.opposite() {
                     head.direction = new_dir;
                 }

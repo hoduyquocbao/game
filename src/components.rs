@@ -44,11 +44,16 @@ pub struct Position {
     pub y: i32,
 }
 
-pub struct SnakeHead {
+/// Component đánh dấu đầu rắn, lưu hướng di chuyển hiện tại
+pub struct Head {
     pub direction: Direction,
 }
 
-pub struct SnakeBody;
+/// Component đánh dấu đốt thân rắn
+pub struct Body;
+
+/// Component chỉ định entity cần follow (đốt phía trước)
+pub struct Follow(pub Entity);
 
 pub struct Food;
 

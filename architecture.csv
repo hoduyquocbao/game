@@ -13,7 +13,12 @@ src/renderer/mod.rs,Trait,Renderer,GraphicsRenderer,Định nghĩa giao ước c
 src/renderer/gpu.rs,Module,gpu,WgpuRendererBackend,Cung cấp backend render hiệu suất cao sử dụng WGPU và vẽ theo lô.,wgpu, bytemuck, glam,Backend duy nhất được hỗ trợ trong phiên bản này để đảm bảo hiệu suất.
 src/snake_plugin.rs,Struct,Snake,SnakeGamePlugin,Đóng gói và khởi tạo tất cả resource, system, và state cần thiết cho game Rắn Săn Mồi.,app::App, engine::Plugin, systems::*,Ví dụ điển hình về cách sử dụng framework để xây dựng một ứng dụng module hóa.
 src/components.rs,Module,components,GameComponents,Định nghĩa tất cả các cấu trúc dữ liệu thuần túy (PODs) và enum của game.,std::collections::VecDeque,Đóng vai trò là "schema" dữ liệu cho toàn bộ game.
-src/components.rs,Struct,Snake,SnakeBodyData,Lưu trữ trạng thái của con rắn, bao gồm một VecDeque các Position của các đốt thân.,components::Position,Sử dụng VecDeque để tối ưu O(1) cho việc thêm/xóa ở hai đầu.
+src/components.rs,Struct,Head,SnakeHead,Đánh dấu đầu rắn, lưu hướng di chuyển hiện tại.,-,Thay thế hoàn toàn SnakeHead cũ, tuân thủ quy tắc một từ.
+src/components.rs,Struct,Body,SnakeBody,Đánh dấu đốt thân rắn.,-,Thay thế hoàn toàn SnakeBody cũ, tuân thủ quy tắc một từ.
+src/components.rs,Struct,Follow,Follow,Chỉ định entity cần follow (đốt phía trước).,-,Thay thế hoàn toàn Snake resource (segments), cho phép movement/growth ECS.
+src/components.rs,Struct,Snake,SnakeBodyData,OBSOLETE: Đã thay thế bằng Head, Body, Follow.,-,Không còn sử dụng.
+src/components.rs,Struct,SnakeHead,SnakeHead,OBSOLETE: Đã thay thế bằng Head.,-,Không còn sử dụng.
+src/components.rs,Struct,SnakeBody,SnakeBody,OBSOLETE: Đã thay thế bằng Body.,-,Không còn sử dụng.
 src/systems/mod.rs,Module,systems,GameLogicSystems,Tập hợp và cung cấp tất cả các hệ thống logic của game.,engine::System, world::World,Đóng vai trò là một facade cho các module system con.
 src/systems/input.rs,Function,input,ProcessInputSystem,Xử lý các sự kiện bàn phím thô từ Input resource và cập nhật Direction resource.,world::World, input::Input, components::Direction,Chạy đầu tiên trong mỗi tick để đảm bảo input được xử lý kịp thời.
 src/systems/snake.rs,Function,movement,SnakeMovementSystem,Cập nhật vị trí của đầu rắn dựa trên Direction và di chuyển các đốt thân theo sau.,world::World, components::Snake, components::Direction,Logic di chuyển theo chuỗi cổ điển của game Rắn.

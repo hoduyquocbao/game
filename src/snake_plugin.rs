@@ -20,11 +20,11 @@ impl Plugin for SnakePlugin {
         app.resource(engine::Events::<Dead>::default());
         let playing_schedule = app.schedule(GameState::Playing);
         playing_schedule.add(InputSystem);
-        playing_schedule.add(MovementSystem);
-        // playing_schedule.add(CollisionSystem);
-        // playing_schedule.add(GrowthSystem);
+        playing_schedule.add(Movement);
+        playing_schedule.add(Collision);
+        playing_schedule.add(Growth);
         playing_schedule.add(FoodSpawnerSystem);
         playing_schedule.add(LifetimeSystem);
-        // TODO: Thiết lập hệ thống cho trạng thái `GameOver`
+        // TODO: Thiết lập hệ thống cho trạng thái GameOver
     }
 }
